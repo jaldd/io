@@ -34,7 +34,10 @@ public class NIOServer {
 
 	public void listen() throws IOException {
 		while (true) {
-			selector.select();
+			selector.select();//阻塞
+//			selector.select(1000);不阻塞，1s超时返回
+//			selector.wakeup();也可以唤醒selector
+//			selector.selectNow();也可以立马返还
 			Set<SelectionKey> selectionKeys = selector.selectedKeys();
 			Iterator<SelectionKey> iterator = selectionKeys.iterator();
 			while (iterator.hasNext()) {
@@ -62,6 +65,7 @@ public class NIOServer {
 			if (count > 0) {
 				reciveText = new String(receivebuffer.array(), 0, count);
 				System.out.println("服务端接收客户端信息:" + reciveText);
+				//OP_WRITE表示底层缓冲区是否有空间，是则响应返还true
 				client.register(selector, selectionKey.OP_WRITE);
 			}
 		} else if (selectionKey.isWritable()) {
